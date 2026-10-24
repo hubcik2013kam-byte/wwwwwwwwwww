@@ -1,0 +1,25 @@
+name: build
+on:
+  push:
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 21
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: 9.2.0
+      - name: Rozpakuj projekt
+        run: unzip -q "$(ls *.zip | head -n 1)" -d proj
+      - run: gradle build -p "proj/$(ls proj | head -n 1)"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: storageesp-jar
+          path: |
+            proj/*/build/libs/*.jar
+            !proj/*/build/libs/*-sources.jar
